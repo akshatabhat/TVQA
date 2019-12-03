@@ -53,7 +53,7 @@ class ABC(nn.Module):
         if self.vaxn_flag:
             # TODO: Load action features
             print("activate vaxn stream")
-            self.video_fc = nn.Sequential(
+            self.vaxn_fc = nn.Sequential(
                 nn.Dropout(0.5),
                 nn.Linear(vaxn_feat_size, embedding_size),
                 nn.Tanh(),
@@ -66,7 +66,7 @@ class ABC(nn.Module):
         self.embedding.weight.data.copy_(torch.from_numpy(pretrained_embedding))
 
     def forward(self, q, q_l, a0, a0_l, a1, a1_l, a2, a2_l, a3, a3_l, a4, a4_l,
-                sub, sub_l, vcpt, vcpt_l, vid, vid_l):
+                sub, sub_l, vcpt, vcpt_l, vid, vid_l, vaxn, vaxn_l):
         e_q = self.embedding(q)
         e_a0 = self.embedding(a0)
         e_a1 = self.embedding(a1)
@@ -110,8 +110,7 @@ class ABC(nn.Module):
         
         if self.vaxn_flag:
             # TODO: Generate video action embeddings
-            e_vaxn = None
-            vaxn_l = 300    # TODO: Make this an arg
+            e_vaxn = self.vaxn_fc(vaxn)
             raw_out_vaxn, _ = self.lstm_raw(e_vaxn, vaxn_l)
             vaxn_out = self.stream_processor(self.lstm_mature_vaxn, self.classifier_vaxn, raw_out_vaxn, vaxn_l,
                                             raw_out_q, q_l, raw_out_a0, a0_l, raw_out_a1, a1_l,
