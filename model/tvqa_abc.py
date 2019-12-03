@@ -53,7 +53,7 @@ class ABC(nn.Module):
         if self.vaxn_flag:
             # TODO: Load action features
             print("activate vaxn stream")
-            elf.video_fc = nn.Sequential(
+            self.video_fc = nn.Sequential(
                 nn.Dropout(0.5),
                 nn.Linear(vaxn_feat_size, embedding_size),
                 nn.Tanh(),
