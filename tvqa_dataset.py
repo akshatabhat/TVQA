@@ -23,6 +23,7 @@ class TVQADataset(Dataset):
         if self.vaxn_load:
             self.vxan_feat = load_json(opt.vaxn_path)     
         self.glove_embedding_path = opt.glove_path
+        self.glove_cache_path = opt.glove_cache_path
         self.normalize_v = opt.normalize_v
         self.with_ts = opt.with_ts
         self.mode = mode
@@ -155,16 +156,23 @@ class TVQADataset(Dataset):
         return sentence_indices
 
     @classmethod
-    def load_glove(cls, filename):
+    def load_glove(cls, glove_cache_path, filename):
         """ Load glove embeddings into a python dict
         returns { word (str) : vector_embedding (torch.FloatTensor) }"""
         glove = {}
+        if os.path.exists(glove_cache_path):
+            print("Found glove cache, loading ...")
+            return load_json(glove_cache_path) 
+
         with open(filename) as f:
             for line in f.readlines():
                 values = line.strip("\n").split(" ")  # space separator
                 word = values[0]
                 vector = np.asarray([float(e) for e in values[1:]])
                 glove[word] = vector
+            with open(glove_cache_path, 'w') as f:
+                print("Caching glove ...")
+                save_json(glove, glove_cache_path)
         return glove
 
     def build_word_vocabulary(self, word_count_threshold=0):
@@ -191,7 +199,7 @@ class TVQADataset(Dataset):
 
         # Make glove embedding.
         print("Loading glove embedding at path : %s. \n" % self.glove_embedding_path)
-        glove_full = self.load_glove(self.glove_embedding_path)
+        glove_full = self.load_glove(self.glove_cache_path, self.glove_embedding_path)
         print("Glove Loaded, building word2idx, idx2word mapping. This may take a while.\n")
         glove_matrix = np.zeros([len(self.idx2word), self.embedding_dim])
         glove_keys = glove_full.keys()
