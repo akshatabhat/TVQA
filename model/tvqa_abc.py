@@ -14,6 +14,7 @@ class ABC(nn.Module):
         self.vid_flag = "imagenet" in opt.input_streams
         self.sub_flag = "sub" in opt.input_streams
         self.vcpt_flag = "vcpt" in opt.input_streams
+        self.vaxn_flag = "vaxn" in opt.input_streams
         hidden_size_1 = opt.hsz1
         hidden_size_2 = opt.hsz2
         n_layers_cls = opt.n_layers_cls
@@ -47,6 +48,13 @@ class ABC(nn.Module):
             self.lstm_mature_vcpt = RNNEncoder(hidden_size_1 * 2 * 5, hidden_size_2, bidirectional=True,
                                                dropout_p=0, n_layers=1, rnn_type="lstm")
             self.classifier_vcpt = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
+
+        if self.vaxn_flag:
+            # TODO: Load action features
+            print("activate vaxn stream")
+            self.lstm_mature_vaxn = RNNEncoder(hidden_size_1 * 2 * 5, hidden_size_2, bidirectional=True,
+                                               dropout_p=0, n_layers=1, rnn_type="lstm")
+            self.classifier_vaxn = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
 
     def load_embedding(self, pretrained_embedding):
         self.embedding.weight.data.copy_(torch.from_numpy(pretrained_embedding))
@@ -93,8 +101,19 @@ class ABC(nn.Module):
                                             raw_out_a2, a2_l, raw_out_a3, a3_l, raw_out_a4, a4_l)
         else:
             vid_out = 0
+        
+        if self.vaxn_flag:
+            # TODO: Generate video action embeddings
+            e_vaxn = None
+            vaxn_l = 300    # TODO: Make this an arg
+            raw_out_vaxn, _ = self.lstm_raw(e_vaxn, vaxn_l)
+            vaxn_out = self.stream_processor(self.lstm_mature_vaxn, self.classifier_vaxn, raw_out_vaxn, vaxn_l,
+                                            raw_out_q, q_l, raw_out_a0, a0_l, raw_out_a1, a1_l,
+                                            raw_out_a2, a2_l, raw_out_a3, a3_l, raw_out_a4, a4_l)
+        else:
+            vaxn_out = 0
 
-        out = sub_out + vcpt_out + vid_out  # adding zeros has no effect on backward
+        out = sub_out + vcpt_out + vid_out + vaxn_out  # adding zeros has no effect on backward
         return out.squeeze()
 
     def stream_processor(self, lstm_mature, classifier, ctx_embed, ctx_l,

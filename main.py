@@ -109,6 +109,7 @@ if __name__ == "__main__":
 
     dset = TVQADataset(opt)
     opt.vocab_size = len(dset.word2idx)
+    print('Using {} input streams'.format(opt.input_streams))
     model = ABC(opt)
     if not opt.no_glove:
         model.load_embedding(dset.vocab_embedding)

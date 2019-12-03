@@ -31,7 +31,7 @@ class BaseOptions(object):
         # model config
         self.parser.add_argument("--no_glove", action="store_true", help="not use glove vectors")
         self.parser.add_argument("--no_ts", action="store_true", help="no timestep annotation, use full length feature")
-        self.parser.add_argument("--input_streams", type=str, nargs="+", choices=["vcpt", "sub", "imagenet"],
+        self.parser.add_argument("--input_streams", type=str, nargs="+", choices=["vcpt", "sub", "imagenet", "vaxn"],
                                  help="input streams for the model, will use both `vcpt` and `sub` streams")
         self.parser.add_argument("--n_layers_cls", type=int, default=1, help="number of layers in classifier")
         self.parser.add_argument("--hsz1", type=int, default=150, help="hidden size for the first lstm")
@@ -54,6 +54,8 @@ class BaseOptions(object):
                                  help="GloVe pretrained vector path")
         self.parser.add_argument("--vcpt_path", type=str, default="./data/det_visual_concepts_hq.pickle",
                                  help="visual concepts feature path")
+        self.parser.add_argument("--vaxn_path", type=str, default="/home/tvqa_data/frames/uncompressed/frames_hq",
+                                 help="video action features root path")
         self.parser.add_argument("--vid_feat_path", type=str, default="./data/tvqa_imagenet_pool5.h5",
                                  help="imagenet feature path")
         self.parser.add_argument("--vid_feat_size", type=int, default=2048,
