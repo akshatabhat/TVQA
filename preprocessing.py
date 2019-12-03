@@ -233,7 +233,7 @@ def add_located(raw_data_dicts, srt_data, frame_cnt, only_bbt):
                     not_bbt = True
                     break
             if not_bbt:
-                break
+                continue
         sub_text_list = srt_data["sub_text"][vid_name]
         sub_time = srt_data["sub_time"][vid_name]
         ts, is_nan = convert_ts(data_dicts[i]["ts"])
@@ -261,7 +261,7 @@ if __name__ == '__main__':
     parser.add_argument("--frm_dir", type=str,
                         help="video frame dir path, the program will use provided cache if it exists. "
                              "Only used to get number of extracted frames for each video.")
-    parser.add_argument("--only_bbt", type=bool, default=False)
+    parser.add_argument("--only_bbt", action="store_true")
     args = parser.parse_args()
 
     data_dir = args.data_dir
