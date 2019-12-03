@@ -19,6 +19,9 @@ class TVQADataset(Dataset):
         self.vfeat_load = opt.vid_feat_flag
         if self.vfeat_load:
             self.vid_h5 = h5py.File(opt.vid_feat_path, "r", driver=opt.h5driver)
+        self.vaxn_load = opt.vxan_feat_flag
+        if self.vaxn_load:
+            self.vxan_feat = load_json(opt.vaxn_path)     
         self.glove_embedding_path = opt.glove_path
         self.normalize_v = opt.normalize_v
         self.with_ts = opt.with_ts
@@ -112,6 +115,13 @@ class TVQADataset(Dataset):
         else:
             cur_vid_feat = torch.zeros([2, 2])  # dummy placeholder
         items.append(cur_vid_feat)
+        
+        # add video action feature
+        if self.vaxn_load:
+            cur_vxan_feat = torch.tensor(self.vxan_feat[cur_vid_name])
+        else:
+            cur_vxan_feat = torch.zeros(512) #TODO: Checl
+        items.append(cur_vxan_feat)   
         return items
 
     @classmethod
@@ -241,7 +251,8 @@ def pad_collate(data):
     qid_key = "qid"
     vid_name_key = "vid_name"
     vid_feat_key = "vid"
-    all_keys = text_keys + [label_key, qid_key, vid_name_key, vid_feat_key]
+    vaxn_feat_key = "vaxn"
+    all_keys = text_keys + [label_key, qid_key, vid_name_key, vid_feat_key, vaxn_feat_key]
     all_values = []
     for i, k in enumerate(all_keys):
         if k in text_keys:
@@ -250,6 +261,8 @@ def pad_collate(data):
             all_values.append(torch.LongTensor(column_data[i]))
         elif k == vid_feat_key:
             all_values.append(pad_video_sequences(column_data[i]))
+        elif k == vaxn_feat_key:
+            all_values.append(olumn_data[i]) #TODO - depends on number of features considered ?
         else:
             all_values.append(column_data[i])
 
@@ -259,13 +272,14 @@ def pad_collate(data):
 
 def preprocess_inputs(batched_data, max_sub_l, max_vcpt_l, max_vid_l, device="cuda:0"):
     """clip and move to target device"""
-    max_len_dict = {"sub": max_sub_l, "vcpt": max_vcpt_l, "vid": max_vid_l}
+    max_len_dict = {"sub": max_sub_l, "vcpt": max_vcpt_l, "vid": max_vid_l, "vaxn":max_vaxn_l}
     text_keys = ["q", "a0", "a1", "a2", "a3", "a4", "sub", "vcpt"]
     label_key = "answer_idx"
     qid_key = "qid"
     vid_feat_key = "vid"
+    vaxn_feat_key = "vaxn"
     model_in_list = []
-    for k in text_keys + [vid_feat_key]:
+    for k in text_keys + [vid_feat_key+vaxn_feat_key]:
         v = getattr(batched_data, k)
         if k in max_len_dict:
             ctx, ctx_l = v

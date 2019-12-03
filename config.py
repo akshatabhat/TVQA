@@ -40,6 +40,7 @@ class BaseOptions(object):
         self.parser.add_argument("--max_sub_l", type=int, default=300, help="max length for subtitle")
         self.parser.add_argument("--max_vcpt_l", type=int, default=300, help="max length for visual concepts")
         self.parser.add_argument("--max_vid_l", type=int, default=480, help="max length for video feature")
+        self.parser.add_argument("--max_vaxn_l", type=int, default=1, help="max length for video action recognition feature")
         self.parser.add_argument("--vocab_size", type=int, default=0, help="vocabulary size")
         self.parser.add_argument("--no_normalize_v", action="store_true", help="do not normalize video featrue")
 
@@ -54,7 +55,7 @@ class BaseOptions(object):
                                  help="GloVe pretrained vector path")
         self.parser.add_argument("--vcpt_path", type=str, default="./data/det_visual_concepts_hq.pickle",
                                  help="visual concepts feature path")
-        self.parser.add_argument("--vaxn_path", type=str, default="/home/tvqa_data/frames/uncompressed/frames_hq",
+        self.parser.add_argument("--vaxn_path", type=str, default="./data/vaxn_path",
                                  help="video action features root path")
         self.parser.add_argument("--vid_feat_path", type=str, default="./data/tvqa_imagenet_pool5.h5",
                                  help="imagenet feature path")
@@ -103,6 +104,7 @@ class BaseOptions(object):
         opt.with_ts = not opt.no_ts
         opt.input_streams = [] if opt.input_streams is None else opt.input_streams
         opt.vid_feat_flag = True if "imagenet" in opt.input_streams else False
+        opt.vxan_feat_flag = True if "vaxn" in opt.input_streams else False
         opt.h5driver = None if opt.no_core_driver else "core"
         opt.results_dir = results_dir
 
