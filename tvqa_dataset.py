@@ -262,7 +262,7 @@ def pad_collate(data):
         elif k == vid_feat_key:
             all_values.append(pad_video_sequences(column_data[i]))
         elif k == vaxn_feat_key:
-            all_values.append(olumn_data[i]) #TODO - depends on number of features considered ?
+            all_values.append(column_data[i]) #TODO - depends on number of features considered ?
         else:
             all_values.append(column_data[i])
 
@@ -270,7 +270,7 @@ def pad_collate(data):
     return batched_data
 
 
-def preprocess_inputs(batched_data, max_sub_l, max_vcpt_l, max_vid_l, device="cuda:0"):
+def preprocess_inputs(batched_data, max_sub_l, max_vcpt_l, max_vid_l, max_vaxn_l, device="cuda:0"):
     """clip and move to target device"""
     max_len_dict = {"sub": max_sub_l, "vcpt": max_vcpt_l, "vid": max_vid_l, "vaxn":max_vaxn_l}
     text_keys = ["q", "a0", "a1", "a2", "a3", "a4", "sub", "vcpt"]
@@ -279,7 +279,7 @@ def preprocess_inputs(batched_data, max_sub_l, max_vcpt_l, max_vid_l, device="cu
     vid_feat_key = "vid"
     vaxn_feat_key = "vaxn"
     model_in_list = []
-    for k in text_keys + [vid_feat_key+vaxn_feat_key]:
+    for k in text_keys + [vid_feat_key, vaxn_feat_key]:
         v = getattr(batched_data, k)
         if k in max_len_dict:
             ctx, ctx_l = v
