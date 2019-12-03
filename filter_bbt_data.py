@@ -2,6 +2,11 @@ from utils import load_json, save_json
 
 
 def filter_data(file_name):
+    """Filter the json file to keep only bbt related data
+    
+    Arguments:
+        file_name {str} -- File path of the input json. The file will be overwritten
+    """
     filtered_data = []
     raw_data = load_json(file_name)
     for ex in raw_data:
