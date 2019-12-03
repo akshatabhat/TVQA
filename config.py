@@ -52,9 +52,7 @@ class BaseOptions(object):
         self.parser.add_argument("--test_path", type=str, default="./data/tvqa_test_public_processed.json",
                                  help="test set path")
         self.parser.add_argument("--glove_path", type=str, default="./data/glove.6B.300d.txt",
-                                 help="GloVe pretrained vector path")
-        self.parser.add_argument("--glove_cache_path", type=str, default="./data/glove_cache.json",
-                                 help="GloVe pretrained vector cached path")                         
+                                 help="GloVe pretrained vector path")                     
         self.parser.add_argument("--vcpt_path", type=str, default="./data/det_visual_concepts_hq.pickle",
                                  help="visual concepts feature path")
         self.parser.add_argument("--vaxn_path", type=str, default="./data/tvqa_vaxn.json",
