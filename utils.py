@@ -2,7 +2,7 @@ __author__ = "Jie Lei"
 
 import os
 import json
-import cPickle as pickle
+import pickle
 
 
 def read_json_lines(file_path):
