@@ -220,12 +220,20 @@ def get_located_sub_text(ts, sub_text_list, sub_time, eos_token="<eos>"):
     return located_sub_text
 
 
-def add_located(raw_data_dicts, srt_data, frame_cnt):
+def add_located(raw_data_dicts, srt_data, frame_cnt, only_bbt):
     """ add entries 'located_frame', 'located_sub_text' """
     data_dicts = copy.deepcopy(raw_data_dicts)
     nan_cnt = 0
     for i in tqdm(range(len(data_dicts))):
         vid_name = data_dicts[i]["vid_name"]
+        if only_bbt:
+            not_bbt = False
+            for show in ["friends", "met", "grey", "house", "castle"]:
+                if show in vid_name:
+                    not_bbt = True
+                    break
+            if not_bbt:
+                break
         sub_text_list = srt_data["sub_text"][vid_name]
         sub_time = srt_data["sub_time"][vid_name]
         ts, is_nan = convert_ts(data_dicts[i]["ts"])
@@ -237,12 +245,12 @@ def add_located(raw_data_dicts, srt_data, frame_cnt):
     return data_dicts
 
 
-def process_qa(qa_path, processed_srt, frame_base_path, frame_cnt_cache_path, save_path):
+def process_qa(qa_path, processed_srt, frame_base_path, frame_cnt_cache_path, save_path, only_bbt=False):
     qa_data = read_json_lines(qa_path)
     qa_data = tokenize_qa(qa_data)
     qa_srt_data = add_srt(qa_data, processed_srt, eos_token="<eos>")
     frame_cnt_dict = get_vidname2cnt_all(frame_base_path, frame_cnt_cache_path)
-    qa_srt_located_data = add_located(qa_srt_data, processed_srt, frame_cnt_dict)
+    qa_srt_located_data = add_located(qa_srt_data, processed_srt, frame_cnt_dict, only_bbt)
     save_json(qa_srt_located_data, save_path)
 
 
@@ -253,6 +261,7 @@ if __name__ == '__main__':
     parser.add_argument("--frm_dir", type=str,
                         help="video frame dir path, the program will use provided cache if it exists. "
                              "Only used to get number of extracted frames for each video.")
+    parser.add_argument("--only_bbt", type=bool, default=False)
     args = parser.parse_args()
 
     data_dir = args.data_dir
@@ -267,4 +276,4 @@ if __name__ == '__main__':
         print("-"*60)
         print("Processing %s" % qa_file)
         processed_qa_path = os.path.join(data_dir, os.path.split(qa_file)[1].replace(".jsonl", "_processed.json"))
-        process_qa(qa_file, srt_data, args.frm_dir, frm_cnt_cache_path, processed_qa_path)
+        process_qa(qa_file, srt_data, args.frm_dir, frm_cnt_cache_path, processed_qa_path, args.only_bbt)
