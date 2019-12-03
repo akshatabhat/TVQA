@@ -83,7 +83,7 @@ def validate(opt, dset, model, mode="valid"):
     valid_corrects = []
     for _, batch in enumerate(valid_loader):
         model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l,
-                                                        device=opt.device)
+                                                        opt.max_vaxn_l, device=opt.device)
         outputs = model(*model_inputs)
         loss = criterion(outputs, targets)
 

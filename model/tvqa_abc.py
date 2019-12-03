@@ -51,7 +51,6 @@ class ABC(nn.Module):
             self.classifier_vcpt = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
 
         if self.vaxn_flag:
-            # TODO: Load action features
             print("activate vaxn stream")
             self.vaxn_fc = nn.Sequential(
                 nn.Dropout(0.5),
@@ -109,8 +108,6 @@ class ABC(nn.Module):
             vid_out = 0
         
         if self.vaxn_flag:
-            # TODO: Generate video action embeddings
-            print(vaxn.shape)
             e_vaxn = self.vaxn_fc(vaxn)
             raw_out_vaxn, _ = self.lstm_raw(e_vaxn, vaxn_l)
             vaxn_out = self.stream_processor(self.lstm_mature_vaxn, self.classifier_vaxn, raw_out_vaxn, vaxn_l,

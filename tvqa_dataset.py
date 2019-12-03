@@ -121,8 +121,7 @@ class TVQADataset(Dataset):
             cur_vxan_feat = torch.tensor(self.vxan_feat[cur_vid_name]).view(-1, 512)
         else:
             cur_vxan_feat = torch.zeros([2, 2])
-        print(cur_vxan_feat.shape)
-        items.append(cur_vxan_feat)   
+        items.append(cur_vxan_feat)
         return items
 
     @classmethod
@@ -247,6 +246,7 @@ def pad_collate(data):
 
     def pad_vaxn_sequences(sequences):
         """sequences is a list of torch float tensors (created from numpy)"""
+        # TODO: Try with unpooled vaxn features
         lengths = torch.LongTensor([len(seq) for seq in sequences])
         v_dim = sequences[0].size(1)
         padded_seqs = torch.zeros(len(sequences), max(lengths), v_dim).float()
@@ -254,7 +254,6 @@ def pad_collate(data):
             end = lengths[idx]
             padded_seqs[idx, :end] = seq
         return padded_seqs, lengths
-
 
     # separate source and target sequences
     column_data = zip(*data)
@@ -267,7 +266,6 @@ def pad_collate(data):
     all_keys = text_keys + [label_key, qid_key, vid_name_key, vid_feat_key, vaxn_feat_key]
     all_values = []
     for i, k in enumerate(all_keys):
-        print(k, len(column_data[i]))
         if k in text_keys:
             all_values.append(pad_sequences(column_data[i]))
         elif k == label_key:
@@ -275,7 +273,7 @@ def pad_collate(data):
         elif k == vid_feat_key:
             all_values.append(pad_video_sequences(column_data[i]))
         elif k == vaxn_feat_key:
-            all_values.append(pad_vaxn_sequences(column_data[i])) #TODO - depends on number of features considered ?
+            all_values.append(pad_vaxn_sequences(column_data[i]))
         else:
             all_values.append(column_data[i])
 
@@ -322,5 +320,3 @@ if __name__ == "__main__":
     for batch_idx, batch in enumerate(data_loader):
         model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l)
         break
-
-
