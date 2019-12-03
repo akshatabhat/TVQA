@@ -40,7 +40,7 @@ class BaseOptions(object):
         self.parser.add_argument("--max_sub_l", type=int, default=300, help="max length for subtitle")
         self.parser.add_argument("--max_vcpt_l", type=int, default=300, help="max length for visual concepts")
         self.parser.add_argument("--max_vid_l", type=int, default=480, help="max length for video feature")
-        self.parser.add_argument("--max_vaxn_l", type=int, default=1, help="max length for video action recognition feature")
+        self.parser.add_argument("--max_vaxn_l", type=int, default=1, help="max length for video action recognition feature") #TODO
         self.parser.add_argument("--vocab_size", type=int, default=0, help="vocabulary size")
         self.parser.add_argument("--no_normalize_v", action="store_true", help="do not normalize video featrue")
 
@@ -55,11 +55,13 @@ class BaseOptions(object):
                                  help="GloVe pretrained vector path")
         self.parser.add_argument("--vcpt_path", type=str, default="./data/det_visual_concepts_hq.pickle",
                                  help="visual concepts feature path")
-        self.parser.add_argument("--vaxn_path", type=str, default="./data/vaxn_path",
+        self.parser.add_argument("--vaxn_path", type=str, default="./data/tvqa_vaxn.json",
                                  help="video action features root path")
         self.parser.add_argument("--vid_feat_path", type=str, default="./data/tvqa_imagenet_pool5.h5",
                                  help="imagenet feature path")
         self.parser.add_argument("--vid_feat_size", type=int, default=2048,
+                                 help="visual feature dimension")
+        self.parser.add_argument("--vaxn_feat_size", type=int, default=512,
                                  help="visual feature dimension")
         self.parser.add_argument("--word2idx_path", type=str, default="./cache/word2idx.pickle",
                                  help="word2idx cache path")

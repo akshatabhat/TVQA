@@ -19,6 +19,7 @@ class ABC(nn.Module):
         hidden_size_2 = opt.hsz2
         n_layers_cls = opt.n_layers_cls
         vid_feat_size = opt.vid_feat_size
+        vaxn_feat_size = opt.vaxn_feat_size
         embedding_size = opt.embedding_size
         vocab_size = opt.vocab_size
 
@@ -52,6 +53,11 @@ class ABC(nn.Module):
         if self.vaxn_flag:
             # TODO: Load action features
             print("activate vaxn stream")
+            elf.video_fc = nn.Sequential(
+                nn.Dropout(0.5),
+                nn.Linear(vaxn_feat_size, embedding_size),
+                nn.Tanh(),
+            )
             self.lstm_mature_vaxn = RNNEncoder(hidden_size_1 * 2 * 5, hidden_size_2, bidirectional=True,
                                                dropout_p=0, n_layers=1, rnn_type="lstm")
             self.classifier_vaxn = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
