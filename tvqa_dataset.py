@@ -118,9 +118,10 @@ class TVQADataset(Dataset):
         
         # add video action feature
         if self.vaxn_load:
-            cur_vxan_feat = torch.tensor(self.vxan_feat[cur_vid_name]).view(-1, 4)
+            cur_vxan_feat = torch.tensor(self.vxan_feat[cur_vid_name]).view(-1, 512)
         else:
-            cur_vxan_feat = torch.zeros([2, 2]) #TODO: Checl
+            cur_vxan_feat = torch.zeros([2, 2])
+        print(cur_vxan_feat.shape)
         items.append(cur_vxan_feat)   
         return items
 
