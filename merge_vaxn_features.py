@@ -31,7 +31,7 @@ def merge_vaxn_features(vaxn_feat_root_path, vaxn_feat_cache_path):
             else:
                 clip_feat = np.load(os.path.join(cur_base_path, clip, 'feature.npy'), allow_pickle=False)
                 if clip_feat.shape[0] != 0:
-                    clip_feat = np.amax(clip_feat, axis=0)
+                    #clip_feat = np.amax(clip_feat, axis=0)
                     vaxn_features[clip] = clip_feat.tolist()
                 else:
                     print("**********Error in feature dim {}**********".format(clip))

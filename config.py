@@ -40,7 +40,8 @@ class BaseOptions(object):
         self.parser.add_argument("--max_sub_l", type=int, default=300, help="max length for subtitle")
         self.parser.add_argument("--max_vcpt_l", type=int, default=300, help="max length for visual concepts")
         self.parser.add_argument("--max_vid_l", type=int, default=480, help="max length for video feature")
-        self.parser.add_argument("--max_vaxn_l", type=int, default=1, help="max length for video action recognition feature") #TODO
+        self.parser.add_argument("--max_vaxn_l", type=int, default=10, help="max length for video action recognition feature") #TODO
+        self.parser.add_argument("--aggr_vaxn", action="store_true", help="use aggregated video action features")
         self.parser.add_argument("--vocab_size", type=int, default=0, help="vocabulary size")
         self.parser.add_argument("--no_normalize_v", action="store_true", help="do not normalize video featrue")
 
@@ -54,9 +55,11 @@ class BaseOptions(object):
         self.parser.add_argument("--glove_path", type=str, default="./data/glove.6B.300d.txt",
                                  help="GloVe pretrained vector path")                     
         self.parser.add_argument("--vcpt_path", type=str, default="./data/det_visual_concepts_hq.pickle",
-                                 help="visual concepts feature path")
-        self.parser.add_argument("--vaxn_path", type=str, default="./data/tvqa_vaxn.json",
+                                 help="visual concepts feature path")                       
+        self.parser.add_argument("--vaxn_aggr_path", type=str, default="./data/tvqa_vaxn_aggr.json",
                                  help="video action features root path")
+        self.parser.add_argument("--vaxn_path", type=str, default="./data/tvqa_vaxn.json",
+                                 help="video action features root path")               
         self.parser.add_argument("--vid_feat_path", type=str, default="./data/tvqa_imagenet_pool5.h5",
                                  help="imagenet feature path")
         self.parser.add_argument("--vid_feat_size", type=int, default=2048,

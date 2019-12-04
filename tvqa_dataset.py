@@ -20,8 +20,12 @@ class TVQADataset(Dataset):
         if self.vfeat_load:
             self.vid_h5 = h5py.File(opt.vid_feat_path, "r", driver=opt.h5driver)
         self.vaxn_load = opt.vxan_feat_flag
+        self.aggr_vaxn = opt.aggr_vaxn
         if self.vaxn_load:
-            self.vxan_feat = load_json(opt.vaxn_path)     
+            if self.aggr_vaxn:
+                self.vxan_feat = load_json(opt.vaxn_aggr_path)
+            else:
+                self.vxan_feat = load_json(opt.vaxn_path)     
         self.glove_embedding_path = opt.glove_path
         self.normalize_v = opt.normalize_v
         self.with_ts = opt.with_ts
@@ -246,8 +250,8 @@ def pad_collate(data):
 
     def pad_vaxn_sequences(sequences):
         """sequences is a list of torch float tensors (created from numpy)"""
-        # TODO: Try with unpooled vaxn features
         lengths = torch.LongTensor([len(seq) for seq in sequences])
+        print(sequences[0].shape)
         v_dim = sequences[0].size(1)
         padded_seqs = torch.zeros(len(sequences), max(lengths), v_dim).float()
         for idx, seq in enumerate(sequences):
@@ -320,3 +324,5 @@ if __name__ == "__main__":
     for batch_idx, batch in enumerate(data_loader):
         model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l)
         break
+
+
