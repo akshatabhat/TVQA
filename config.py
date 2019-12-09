@@ -31,7 +31,7 @@ class BaseOptions(object):
         # model config
         self.parser.add_argument("--no_glove", action="store_true", help="not use glove vectors")
         self.parser.add_argument("--no_ts", action="store_true", help="no timestep annotation, use full length feature")
-        self.parser.add_argument("--input_streams", type=str, nargs="+", choices=["vcpt", "sub", "imagenet", "vaxn"],
+        self.parser.add_argument("--input_streams", type=str, nargs="+", choices=["vcpt", "sub", "imagenet", "vaxn", "smth"],
                                  help="input streams for the model, will use both `vcpt` and `sub` streams")
         self.parser.add_argument("--n_layers_cls", type=int, default=1, help="number of layers in classifier")
         self.parser.add_argument("--hsz1", type=int, default=150, help="hidden size for the first lstm")
@@ -42,6 +42,8 @@ class BaseOptions(object):
         self.parser.add_argument("--max_vid_l", type=int, default=480, help="max length for video feature")
         self.parser.add_argument("--max_vaxn_l", type=int, default=10, help="max length for video action recognition feature") #TODO
         self.parser.add_argument("--aggr_vaxn", action="store_true", help="use aggregated video action features")
+        self.parser.add_argument("--max_smth_l", type=int, default=10, help="max length for 20BN video action recognition feature") #TODO
+        self.parser.add_argument("--aggr_smth", action="store_true", help="use aggregated 20BN video action features")
         self.parser.add_argument("--vocab_size", type=int, default=0, help="vocabulary size")
         self.parser.add_argument("--no_normalize_v", action="store_true", help="do not normalize video featrue")
 
@@ -59,13 +61,19 @@ class BaseOptions(object):
         self.parser.add_argument("--vaxn_aggr_path", type=str, default="./data/tvqa_vaxn_aggr.json",
                                  help="video action features root path")
         self.parser.add_argument("--vaxn_path", type=str, default="./data/tvqa_vaxn.json",
-                                 help="video action features root path")               
+                                 help="video action features root path")
+        self.parser.add_argument("--smth_aggr_path", type=str, default="./data/tvqa_smth_aggr.json",
+                                 help="video action features root path")
+        self.parser.add_argument("--smth_path", type=str, default="./data/tvqa_smth.json",
+                                 help="video action features root path")              
         self.parser.add_argument("--vid_feat_path", type=str, default="./data/tvqa_imagenet_pool5.h5",
                                  help="imagenet feature path")
         self.parser.add_argument("--vid_feat_size", type=int, default=2048,
                                  help="visual feature dimension")
         self.parser.add_argument("--vaxn_feat_size", type=int, default=512,
-                                 help="visual feature dimension")
+                                 help="video action feature dimension")
+        self.parser.add_argument("--smth_feat_size", type=int, default=512,
+                                 help="20BN video action feature dimension")
         self.parser.add_argument("--word2idx_path", type=str, default="./cache/word2idx.pickle",
                                  help="word2idx cache path")
         self.parser.add_argument("--idx2word_path", type=str, default="./cache/idx2word.pickle",
@@ -110,6 +118,7 @@ class BaseOptions(object):
         opt.input_streams = [] if opt.input_streams is None else opt.input_streams
         opt.vid_feat_flag = True if "imagenet" in opt.input_streams else False
         opt.vxan_feat_flag = True if "vaxn" in opt.input_streams else False
+        opt.smth_feat_flag = True if "smth" in opt.input_streams else False
         opt.h5driver = None if opt.no_core_driver else "core"
         opt.results_dir = results_dir
 
