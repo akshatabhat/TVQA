@@ -23,7 +23,7 @@ def train(opt, dset, model, criterion, optimizer, epoch, previous_best_acc):
     train_corrects = []
     torch.set_grad_enabled(True)
     for batch_idx, batch in tqdm(enumerate(train_loader)):
-        model_inputs, targets, _ = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l, opt.max_vaxn_l,
+        model_inputs, targets, _ = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l, opt.max_vaxn_l, opt.max_smth_l
                                                      device=opt.device)
         outputs = model(*model_inputs)
         loss = criterion(outputs, targets)
@@ -83,7 +83,7 @@ def validate(opt, dset, model, mode="valid"):
     valid_corrects = []
     for _, batch in enumerate(valid_loader):
         model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l,
-                                                        opt.max_vaxn_l, device=opt.device)
+                                                        opt.max_vaxn_l, opt.max_smth_l, device=opt.device)
         outputs = model(*model_inputs)
         loss = criterion(outputs, targets)
 

@@ -15,11 +15,13 @@ class ABC(nn.Module):
         self.sub_flag = "sub" in opt.input_streams
         self.vcpt_flag = "vcpt" in opt.input_streams
         self.vaxn_flag = "vaxn" in opt.input_streams
+        self.smth = "smth" in opt.input_streams
         hidden_size_1 = opt.hsz1
         hidden_size_2 = opt.hsz2
         n_layers_cls = opt.n_layers_cls
         vid_feat_size = opt.vid_feat_size
         vaxn_feat_size = opt.vaxn_feat_size
+        smth_feat_size = opt.smth_feat_size
         embedding_size = opt.embedding_size
         vocab_size = opt.vocab_size
 
@@ -60,12 +62,23 @@ class ABC(nn.Module):
             self.lstm_mature_vaxn = RNNEncoder(hidden_size_1 * 2 * 5, hidden_size_2, bidirectional=True,
                                                dropout_p=0, n_layers=1, rnn_type="lstm")
             self.classifier_vaxn = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
+        
+        if self.smth:
+            print("activate smth stream")
+            self.smth_fc = nn.Sequential(
+                nn.Dropout(0.5),
+                nn.Linear(smth_feat_size, embedding_size),
+                nn.Tanh(),
+            )
+            self.lstm_mature_smth = RNNEncoder(hidden_size_1 * 2 * 5, hidden_size_2, bidirectional=True,
+                                               dropout_p=0, n_layers=1, rnn_type="lstm")
+            self.classifier_smth = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
 
     def load_embedding(self, pretrained_embedding):
         self.embedding.weight.data.copy_(torch.from_numpy(pretrained_embedding))
 
     def forward(self, q, q_l, a0, a0_l, a1, a1_l, a2, a2_l, a3, a3_l, a4, a4_l,
-                sub, sub_l, vcpt, vcpt_l, vid, vid_l, vaxn, vaxn_l):
+                sub, sub_l, vcpt, vcpt_l, vid, vid_l, vaxn, vaxn_l, smth, smth_l):
         e_q = self.embedding(q)
         e_a0 = self.embedding(a0)
         e_a1 = self.embedding(a1)
@@ -116,7 +129,16 @@ class ABC(nn.Module):
         else:
             vaxn_out = 0
 
-        out = sub_out + vcpt_out + vid_out + vaxn_out  # adding zeros has no effect on backward
+        if self.smth_flag:
+            e_smth = self.smth_fc(smth)
+            raw_out_smth, _ = self.lstm_raw(e_smth, smth_l)
+            smth_out = self.stream_processor(self.lstm_mature_smth, self.classifier_smth, raw_out_smth, smth_l,
+                                            raw_out_q, q_l, raw_out_a0, a0_l, raw_out_a1, a1_l,
+                                            raw_out_a2, a2_l, raw_out_a3, a3_l, raw_out_a4, a4_l)
+        else:
+            smth_out = 0        
+
+        out = sub_out + vcpt_out + vid_out + vaxn_out + smth_out # adding zeros has no effect on backward
         return out.squeeze()
 
     def stream_processor(self, lstm_mature, classifier, ctx_embed, ctx_l,
