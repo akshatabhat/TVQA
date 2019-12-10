@@ -117,7 +117,7 @@ class BaseOptions(object):
         opt.with_ts = not opt.no_ts
         opt.input_streams = [] if opt.input_streams is None else opt.input_streams
         opt.vid_feat_flag = True if "imagenet" in opt.input_streams else False
-        opt.vxan_feat_flag = True if "vaxn" in opt.input_streams else False
+        opt.vaxn_feat_flag = True if "vaxn" in opt.input_streams else False
         opt.smth_feat_flag = True if "smth" in opt.input_streams else False
         opt.h5driver = None if opt.no_core_driver else "core"
         opt.results_dir = results_dir

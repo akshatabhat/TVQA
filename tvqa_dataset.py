@@ -267,7 +267,7 @@ def pad_collate(data):
     def pad_vaxn_sequences(sequences):
         """sequences is a list of torch float tensors (created from numpy)"""
         lengths = torch.LongTensor([len(seq) for seq in sequences])
-        print(sequences[0].shape)
+        #print(sequences[0].shape)
         v_dim = sequences[0].size(1)
         padded_seqs = torch.zeros(len(sequences), max(lengths), v_dim).float()
         for idx, seq in enumerate(sequences):
@@ -278,7 +278,7 @@ def pad_collate(data):
     def pad_smth_sequences(sequences):
         """sequences is a list of torch float tensors (created from numpy)"""
         lengths = torch.LongTensor([len(seq) for seq in sequences])
-        print(sequences[0].shape)
+        #print(sequences[0].shape)
         v_dim = sequences[0].size(1)
         padded_seqs = torch.zeros(len(sequences), max(lengths), v_dim).float()
         for idx, seq in enumerate(sequences):
@@ -304,8 +304,10 @@ def pad_collate(data):
             all_values.append(torch.LongTensor(column_data[i]))
         elif k == vid_feat_key:
             all_values.append(pad_video_sequences(column_data[i]))
+        elif k == vaxn_feat_key:
+            all_values.append(pad_vaxn_sequences(column_data[i]))
         elif k == smth_feat_key:
-            all_values.append(pad_smth_sequences(column_data[i]))
+            all_values.append(pad_smth_sequences(column_data[i]))            
         else:
             all_values.append(column_data[i])
 

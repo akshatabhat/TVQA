@@ -15,7 +15,7 @@ class ABC(nn.Module):
         self.sub_flag = "sub" in opt.input_streams
         self.vcpt_flag = "vcpt" in opt.input_streams
         self.vaxn_flag = "vaxn" in opt.input_streams
-        self.smth = "smth" in opt.input_streams
+        self.smth_flag = "smth" in opt.input_streams
         hidden_size_1 = opt.hsz1
         hidden_size_2 = opt.hsz2
         n_layers_cls = opt.n_layers_cls
@@ -63,7 +63,7 @@ class ABC(nn.Module):
                                                dropout_p=0, n_layers=1, rnn_type="lstm")
             self.classifier_vaxn = MLP(hidden_size_2*2, 1, 500, n_layers_cls)
         
-        if self.smth:
+        if self.smth_flag:
             print("activate smth stream")
             self.smth_fc = nn.Sequential(
                 nn.Dropout(0.5),
