@@ -105,7 +105,7 @@ class TVQADataset(Dataset):
             if self.bert_flag:
                 bert_tok = torch.tensor(
                     self.bert_tokenizer.encode(self.cur_data_dict[index][k], 
-                        add_special_tokens=True)).unsqueeze(0)  # Batch size 1
+                        add_special_tokens=True))#.unsqueeze(0)  # Batch size 1
                 items.append(bert_tok)
             else:
                 items.append(self.numericalize(self.cur_data_dict[index][k]))
@@ -309,11 +309,7 @@ def pad_collate(data):
     all_values = []
     for i, k in enumerate(all_keys):
         if k in text_keys:
-            if self.bert_flag:
-                # TODO: Check if same pad_seq works for BERT tokens as well
-                all_values.append(pad_sequences(column_data[i]))
-            else:
-                all_values.append(pad_sequences(column_data[i]))
+            all_values.append(pad_sequences(column_data[i]))
         elif k == label_key:
             all_values.append(torch.LongTensor(column_data[i]))
         elif k == vid_feat_key:

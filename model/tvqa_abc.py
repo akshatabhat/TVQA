@@ -84,12 +84,12 @@ class ABC(nn.Module):
     def forward(self, q, q_l, a0, a0_l, a1, a1_l, a2, a2_l, a3, a3_l, a4, a4_l,
                 sub, sub_l, vcpt, vcpt_l, vid, vid_l, vaxn, vaxn_l, smth, smth_l):
         if self.bert_flag:
-            raw_out_q, _ = self.bert_model(q)[1]
-            raw_out_a0, _ = self.bert_model(e_a0)[1]
-            raw_out_a1, _ = self.bert_model(e_a1)[1]
-            raw_out_a2, _ = self.bert_model(e_a2)[1]
-            raw_out_a3, _ = self.bert_model(e_a3)[1]
-            raw_out_a4, _ = self.bert_model(e_a4)[1]
+            raw_out_q = self.bert_model(q)[1]
+            raw_out_a0 = self.bert_model(a0)[1]
+            raw_out_a1 = self.bert_model(a1)[1]
+            raw_out_a2 = self.bert_model(a2)[1]
+            raw_out_a3 = self.bert_model(a3)[1]
+            raw_out_a4 = self.bert_model(a4)[1]
         else:
             e_q = self.embedding(q)
             e_a0 = self.embedding(a0)
@@ -107,7 +107,7 @@ class ABC(nn.Module):
 
         if self.sub_flag:
             if self.bert_flag:
-                raw_out_sub, _ = self.bert_model(e_sub)[1]
+                raw_out_sub = self.bert_model(sub)[1]
             else:
                 e_sub = self.embedding(sub)
                 raw_out_sub, _ = self.lstm_raw(e_sub, sub_l)
