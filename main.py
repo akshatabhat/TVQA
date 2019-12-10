@@ -108,10 +108,11 @@ if __name__ == "__main__":
     opt.writer = writer
 
     dset = TVQADataset(opt)
+
     opt.vocab_size = len(dset.word2idx)
     print('Using {} input streams'.format(opt.input_streams))
     model = ABC(opt)
-    if not opt.no_glove:
+    if not opt.bert_flag and not opt.no_glove:
         model.load_embedding(dset.vocab_embedding)
 
     model.to(opt.device)

@@ -80,6 +80,7 @@ class BaseOptions(object):
                                  help="idx2word cache path")
         self.parser.add_argument("--vocab_embedding_path", type=str, default="./cache/vocab_embedding.pickle",
                                  help="vocab_embedding cache path")
+        self.parser.add_argument("--bert_flag", action="store_true", help="Use BERT to encode textual data")
         self.initialized = True
 
     def display_save(self, options, results_dir):

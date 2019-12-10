@@ -6,7 +6,7 @@ from torch import nn
 from rnn import RNNEncoder, max_along_time
 from bidaf import BidafAttn
 from mlp import MLP
-
+from transformers import BertModel
 
 class ABC(nn.Module):
     def __init__(self, opt):
@@ -16,6 +16,7 @@ class ABC(nn.Module):
         self.vcpt_flag = "vcpt" in opt.input_streams
         self.vaxn_flag = "vaxn" in opt.input_streams
         self.smth_flag = "smth" in opt.input_streams
+        self.bert_flag = opt.bert_flag
         hidden_size_1 = opt.hsz1
         hidden_size_2 = opt.hsz2
         n_layers_cls = opt.n_layers_cls
@@ -24,6 +25,9 @@ class ABC(nn.Module):
         smth_feat_size = opt.smth_feat_size
         embedding_size = opt.embedding_size
         vocab_size = opt.vocab_size
+
+        if self.bert_flag:
+            self.bert_model = BertModel.from_pretrained('bert-base-uncased')
 
         self.embedding = nn.Embedding(vocab_size, embedding_size)
         self.bidaf = BidafAttn(hidden_size_1 * 3, method="dot")  # no parameter for dot
@@ -79,23 +83,34 @@ class ABC(nn.Module):
 
     def forward(self, q, q_l, a0, a0_l, a1, a1_l, a2, a2_l, a3, a3_l, a4, a4_l,
                 sub, sub_l, vcpt, vcpt_l, vid, vid_l, vaxn, vaxn_l, smth, smth_l):
-        e_q = self.embedding(q)
-        e_a0 = self.embedding(a0)
-        e_a1 = self.embedding(a1)
-        e_a2 = self.embedding(a2)
-        e_a3 = self.embedding(a3)
-        e_a4 = self.embedding(a4)
+        if self.bert_flag:
+            raw_out_q, _ = self.bert_model(q)[1]
+            raw_out_a0, _ = self.bert_model(e_a0)[1]
+            raw_out_a1, _ = self.bert_model(e_a1)[1]
+            raw_out_a2, _ = self.bert_model(e_a2)[1]
+            raw_out_a3, _ = self.bert_model(e_a3)[1]
+            raw_out_a4, _ = self.bert_model(e_a4)[1]
+        else:
+            e_q = self.embedding(q)
+            e_a0 = self.embedding(a0)
+            e_a1 = self.embedding(a1)
+            e_a2 = self.embedding(a2)
+            e_a3 = self.embedding(a3)
+            e_a4 = self.embedding(a4)
+            raw_out_q, _ = self.lstm_raw(e_q, q_l)
+            raw_out_a0, _ = self.lstm_raw(e_a0, a0_l)
+            raw_out_a1, _ = self.lstm_raw(e_a1, a1_l)
+            raw_out_a2, _ = self.lstm_raw(e_a2, a2_l)
+            raw_out_a3, _ = self.lstm_raw(e_a3, a3_l)
+            raw_out_a4, _ = self.lstm_raw(e_a4, a4_l)
 
-        raw_out_q, _ = self.lstm_raw(e_q, q_l)
-        raw_out_a0, _ = self.lstm_raw(e_a0, a0_l)
-        raw_out_a1, _ = self.lstm_raw(e_a1, a1_l)
-        raw_out_a2, _ = self.lstm_raw(e_a2, a2_l)
-        raw_out_a3, _ = self.lstm_raw(e_a3, a3_l)
-        raw_out_a4, _ = self.lstm_raw(e_a4, a4_l)
 
         if self.sub_flag:
-            e_sub = self.embedding(sub)
-            raw_out_sub, _ = self.lstm_raw(e_sub, sub_l)
+            if self.bert_flag:
+                raw_out_sub, _ = self.bert_model(e_sub)[1]
+            else:
+                e_sub = self.embedding(sub)
+                raw_out_sub, _ = self.lstm_raw(e_sub, sub_l)
             sub_out = self.stream_processor(self.lstm_mature_sub, self.classifier_sub, raw_out_sub, sub_l,
                                             raw_out_q, q_l, raw_out_a0, a0_l, raw_out_a1, a1_l,
                                             raw_out_a2, a2_l, raw_out_a3, a3_l, raw_out_a4, a4_l)
