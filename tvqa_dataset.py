@@ -8,10 +8,13 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import Dataset
 from tqdm import tqdm
 from utils import load_pickle, save_pickle, load_json, files_exist
+from transformers import BertTokenizer
 
 
 class TVQADataset(Dataset):
     def __init__(self, opt, mode="train"):
+        self.bert_tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+        self.bert_flag = opt.bert_flag
         self.raw_train = load_json(opt.train_path)
         self.raw_test = load_json(opt.test_path)
         self.raw_valid = load_json(opt.valid_path)
@@ -66,14 +69,15 @@ class TVQADataset(Dataset):
             assert k in self.raw_valid[0].keys()
 
         # build/load vocabulary
-        if not files_exist([self.word2idx_path, self.idx2word_path, self.vocab_embedding_path]):
-            print("\nNo cache founded.")
-            self.build_word_vocabulary(word_count_threshold=opt.word_count_threshold)
-        else:
-            print("\nLoading cache ...")
-            self.word2idx = load_pickle(self.word2idx_path)
-            self.idx2word = load_pickle(self.idx2word_path)
-            self.vocab_embedding = load_pickle(self.vocab_embedding_path)
+        if not self.bert_flag:
+            if not files_exist([self.word2idx_path, self.idx2word_path, self.vocab_embedding_path]):
+                print("\nNo cache founded.")
+                self.build_word_vocabulary(word_count_threshold=opt.word_count_threshold)
+            else:
+                print("\nLoading cache ...")
+                self.word2idx = load_pickle(self.word2idx_path)
+                self.idx2word = load_pickle(self.idx2word_path)
+                self.vocab_embedding = load_pickle(self.vocab_embedding_path)
 
     def set_mode(self, mode):
         self.mode = mode
@@ -98,7 +102,13 @@ class TVQADataset(Dataset):
 
         # add text keys
         for k in self.text_keys:
-            items.append(self.numericalize(self.cur_data_dict[index][k]))
+            if self.bert_flag:
+                bert_tok = torch.tensor(
+                    self.bert_tokenizer.encode(self.cur_data_dict[index][k], 
+                        add_special_tokens=True)).unsqueeze(0)  # Batch size 1
+                items.append(bert_tok)
+            else:
+                items.append(self.numericalize(self.cur_data_dict[index][k]))
 
         # add vcpt
         if self.with_ts:
@@ -299,7 +309,11 @@ def pad_collate(data):
     all_values = []
     for i, k in enumerate(all_keys):
         if k in text_keys:
-            all_values.append(pad_sequences(column_data[i]))
+            if self.bert_flag:
+                # TODO: Check if same pad_seq works for BERT tokens as well
+                all_values.append(pad_sequences(column_data[i]))
+            else:
+                all_values.append(pad_sequences(column_data[i]))
         elif k == label_key:
             all_values.append(torch.LongTensor(column_data[i]))
         elif k == vid_feat_key:
