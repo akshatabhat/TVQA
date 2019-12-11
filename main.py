@@ -15,7 +15,7 @@ from config import BaseOptions
 def train(opt, dset, model, criterion, optimizer, epoch, previous_best_acc):
     dset.set_mode("train")
     model.train()
-    train_loader = DataLoader(dset, batch_size=opt.bsz, shuffle=True, collate_fn=pad_collate)
+    train_loader = DataLoader(dset, batch_size=opt.bsz, shuffle=False, collate_fn=pad_collate)
 
     train_loss = []
     valid_acc_log = ["batch_idx\tacc"]
@@ -42,6 +42,7 @@ def train(opt, dset, model, criterion, optimizer, epoch, previous_best_acc):
             opt.writer.add_scalar("Train/Acc", train_acc, niter)
             opt.writer.add_scalar("Train/Loss", train_loss, niter)
 
+            
             # Test
             valid_acc, valid_loss = validate(opt, dset, model, mode="valid")
             opt.writer.add_scalar("Valid/Loss", valid_loss, niter)
