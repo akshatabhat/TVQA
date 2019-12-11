@@ -12,7 +12,6 @@ from model.tvqa_abc import ABC
 from tvqa_dataset import TVQADataset, pad_collate, preprocess_inputs
 from config import BaseOptions
 
-
 def train(opt, dset, model, criterion, optimizer, epoch, previous_best_acc):
     dset.set_mode("train")
     model.train()

@@ -107,10 +107,18 @@ class ABC(nn.Module):
 
         if self.sub_flag:
             if self.bert_flag:
-                raw_out_sub = self.bert_model(sub)[1]
+                print("here")
+                print(sub.shape)
+                inputs = {
+                    'input_ids': sub
+                }
+                raw_out_sub = self.bert_model(**inputs)[1]
+                print(raw_out_sub.shape)
             else:
+                print(sub.shape)
                 e_sub = self.embedding(sub)
                 raw_out_sub, _ = self.lstm_raw(e_sub, sub_l)
+                print(raw_out_sub.shape)
             sub_out = self.stream_processor(self.lstm_mature_sub, self.classifier_sub, raw_out_sub, sub_l,
                                             raw_out_q, q_l, raw_out_a0, a0_l, raw_out_a1, a1_l,
                                             raw_out_a2, a2_l, raw_out_a3, a3_l, raw_out_a4, a4_l)
