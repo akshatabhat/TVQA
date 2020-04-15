@@ -363,7 +363,7 @@ if __name__ == "__main__":
     data_loader = DataLoader(dset, batch_size=10, shuffle=False, collate_fn=pad_collate)
 
     for batch_idx, batch in enumerate(data_loader):
-        model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l, opt.max_smth_l)
+        model_inputs, targets, qids = preprocess_inputs(batch, opt.max_sub_l, opt.max_vcpt_l, opt.max_vid_l, opt.max_smth_l,  device="cuda:0")
         break
 
 
